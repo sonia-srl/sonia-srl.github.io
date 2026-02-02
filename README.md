@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -44,7 +45,7 @@
         
         header {
             background: linear-gradient(135deg, #0A1560 0%, var(--asml-dark-blue) 50%, #1565C0 100%);
-            padding: 3.5rem 0;
+            padding: 1.5rem 0;
             position: relative;
             box-shadow: 0 4px 20px rgba(15, 35, 140, 0.15);
         }
@@ -55,31 +56,31 @@
             bottom: 0;
             left: 0;
             right: 0;
-            height: 4px;
+            height: 3px;
             background: linear-gradient(90deg, var(--asml-yellow) 0%, var(--asml-bright-blue) 100%);
         }
         
         .header-content h1 {
-            font-size: 2.75rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: white;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
             letter-spacing: -0.02em;
         }
         
-        .subtitle { font-size: 1.125rem; color: rgba(255, 255, 255, 0.9); font-weight: 400; }
+        .subtitle { font-size: 0.875rem; color: rgba(255, 255, 255, 0.85); font-weight: 400; }
         
         .stats-section {
             background: white;
-            padding: 2.5rem 0;
+            padding: 1.5rem 0;
             box-shadow: 0 2px 8px rgba(15, 35, 140, 0.08);
         }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
         
         .stat {
             text-align: center;
-            padding: 1rem;
+            padding: 0.5rem;
             position: relative;
         }
         
@@ -89,14 +90,14 @@
             bottom: -0.5rem;
             left: 50%;
             transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
+            width: 50px;
+            height: 2px;
             background: var(--asml-yellow);
             border-radius: 2px;
         }
         
         .stat-value {
-            font-size: 3.5rem;
+            font-size: 2.5rem;
             font-weight: 700;
             background: linear-gradient(135deg, var(--asml-dark-blue) 0%, var(--asml-bright-blue) 100%);
             -webkit-background-clip: text;
@@ -1090,8 +1091,63 @@
                         }
                     }
                 });
+                
+                // Update stats dynamically
+                updateStats(filter);
             });
         });
+        
+        // Function to update stats based on visible cards
+        function updateStats(filter) {
+            let visibleCards = [];
+            
+            dealCards.forEach(card => {
+                if (card.classList.contains('visible')) {
+                    visibleCards.push(card);
+                }
+            });
+            
+            // Count transactions
+            const transactionCount = visibleCards.length;
+            
+            // Calculate total deal value
+            let totalValue = 0;
+            visibleCards.forEach(card => {
+                const amountElement = card.querySelector('.deal-amount');
+                if (amountElement) {
+                    const amountText = amountElement.textContent.replace(/[$M,]/g, '');
+                    const amount = parseFloat(amountText);
+                    if (!isNaN(amount)) {
+                        totalValue += amount;
+                    }
+                }
+            });
+            
+            // Count unique countries
+            const countries = new Set();
+            visibleCards.forEach(card => {
+                const locationElement = card.querySelector('.deal-location');
+                if (locationElement) {
+                    const locationText = locationElement.textContent;
+                    // Extract country (after the | separator)
+                    const parts = locationText.split('|');
+                    if (parts.length > 1) {
+                        const country = parts[1].trim();
+                        countries.add(country);
+                    }
+                }
+            });
+            
+            const countryCount = countries.size;
+            
+            // Update the DOM
+            const statValues = document.querySelectorAll('.stat-value');
+            if (statValues.length >= 3) {
+                statValues[0].textContent = transactionCount;
+                statValues[1].textContent = `$${Math.round(totalValue)}M+`;
+                statValues[2].textContent = countryCount + (countryCount === 1 ? '' : '+');
+            }
+        }
         
         // Make clickable cards open links in new tab
         dealCards.forEach(card => {
